@@ -1,0 +1,1122 @@
+<html>
+
+<head>
+    <!-- files start -->
+    <script src="vue/dist/vue.js"></script>
+    <script src="axios/dist/axios.min.js"></script>
+    <script src="cookie-master/src/js.cookie.js"></script>
+    <script type="text/javascript" src="Semantic-UI-CSS-master/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="Semantic-UI-CSS-master/semantic.css">
+    <script type="text/javascript" src="Semantic-UI-CSS-master/semantic.min.js"></script>
+    <script type="text/javascript" src="moment.js"></script>
+    <script type="text/javascript" src="auth.js"></script>
+    <link rel="styesheet" type="text/css" href="custom_button.css">
+    <script type="text/javascript" src="purl-master/purl.js"></script>
+    <!-- files stop -->
+    <!-- Title -->
+    <title>AskBox</title>
+    <!-- Title End -->
+    <!-- Style Start -->
+    <style>   
+        @font-face {
+            font-family:'MON3 Anonta 1';
+            src:local('MON3 Anonta 1'),url('fonts/mon3.ttf');
+        }
+        .ui.grid,.ui.modal{
+            font-family:'MON3 Anonta 1'!important;
+        }
+        .user_box{
+            cursor: pointer;
+        }
+        .mycontainer{
+            margin-left: 15px;
+            margin-top: 15px;
+            margin-right: 15px;
+        }
+        #proj_logo_box{
+            margin-left: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding-bottom: 0px;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 12px;
+            background-color: white;
+        }
+        #proj_logo{
+            width: 100px;
+        }
+        .div_logo{
+            background-color: white;
+        }
+        #post_card,#post_date,#post_name,.meta{
+            color: #044F67;
+        }
+        .ui.raised.footer,.ui.inverted.segment{
+            background-color: #044F67;
+        }
+        #more,#ask,#feeds{
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+            .ggsearch{
+                margin-bottom: 10px;
+                margin-top: 10px;
+                margin-left: 30px;
+            }
+        #search{
+            cursor: pointer;
+        }
+        #pre_page{
+            cursor:pointer;
+        }
+        #next_page{
+            cursor: pointer;
+        }
+            .ui.raised.menu{
+                 background-color: #044F67;
+                 box-shadow: 0 4px 18px 0 rgba(0,0,0,0.1);  
+                    padding: 7 7 7 7px;
+            }
+            .ui.t{
+                background-color: aqua;
+            }
+            .item {
+                  padding: 50px;
+                }
+            .ggnavbar.left{
+                margin-left: 120px;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            .ggnavbar.right{
+                margin-right: 100px;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+            .gg3{
+                margin-bottom: 10px;
+                margin-left: 15px;
+                margin-right: 15px;
+                margin-top: 25px;
+            }
+            .gg4{
+                margin-left:5px;
+            }
+        .ui.sidebar ~ .fixed,
+        .ui.sidebar ~ .pusher {
+            width: 100%;
+        }
+        
+        .ui.visible.left.sidebar ~ .fixed,
+        .ui.visible.left.sidebar ~ .pusher {
+            width: calc(100% - 260px);
+        }
+        
+        .pushable > .pusher {
+            transition: transform 500ms ease, width 800ms ease;
+        }
+        
+        #loading_container {
+            width: 100%;
+            height: 320px;
+        }
+        
+        #loading {
+            margin-top: 50px;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .no_internet {
+            color: rgb(242, 113, 28);
+            font-size: 1.2em;
+        }
+    </style>
+    <!-- Style Start -->
+</head>
+
+<body>
+    <!-- please log in modal start-->
+    <div class="ui small modal inverted" id="modal1">
+        <div class="actions">
+            <br/>
+            <div class="ui center aligned primary header">မေးချင်ရင် Login အရင်ဝင်</div>
+            <br/>
+            <div onclick="hidesidebar()" class="ui blue button">ဝင်မယ်</div>
+            <script>
+                function hidesidebar() {
+                    $('.ui.sidebar').sidebar('show');
+                    $('#modal1').modal('hide');
+                }
+            </script>
+            <div class="ui blue cancel button">မဝင်ဘူး</div>
+            <br/>
+        </div>
+    </div>
+    <script>
+        $('.ui.modal')
+            .modal({
+                blurring: true,
+            })
+            .modal('');
+        $(document).on("click", "#ask", function () {
+            if (checkAuth()) {
+                $("#modal2").modal("setting", {
+                    closable: true,
+                    onApprove: function () {
+                        return false;
+                    }
+                }).modal("show");
+            } else {
+                $("#modal1").modal("setting", {
+                    closable: true,
+                    onApprove: function () {
+                        return false;
+                    }
+                }).modal("show");
+            }
+
+        })
+    </script>
+    <!--please log in modal end -->
+    <!-- Index Page Start -->
+    <div id="app">
+        <div class="ui right wide sidebar vertical menu">
+            <a class="center aligned item">
+                <h3 class="ui center aligned icon header">
+                    <div class="item" v-on:click="profile">
+                        <img class="ui tiny centered circular image" id="user_profile" src="Images/avatar/large/daniel.jpg"/><br/>
+                        <div class="content">
+
+                            <h3 class="ui header" id="username">Login</h3>
+                        </div>
+                    </div>
+                </h3>
+                <div class="ui centered grid container" id="wtf">
+                    <div class="row" id="login_container">
+                        <div onlogin="checkLoginState();" scope="public_profile,email" class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" ></div>
+                    </div>
+                    Or
+                    <div class="row" onclick="google()">
+                        <button class="ui large google plus button">
+                            <i class="google plus icon"></i> Login with Google Plus
+                        </button>
+                    </div>
+                    <script>
+                        function google(){
+                            alert("This feature is not availiable yet!!!")
+                        }
+                    </script>
+                </div>
+            </a>
+        </div>
+        <div class="pusher">
+            <div class="ui fixed raised inverted menu borderless" style="border-radius: 0!important; border: 0; -webkit-transition-duration: 7.9s;">
+              <div class="left menu">
+                  <div id="proj_logo_box">
+                      <img id="proj_logo" src="Images/PicsArt_08-03-07.51.32.png">
+                  </div>
+                  <div class="ggsearch">
+                    <div class="ui search">
+                      <div class="ui icon input">
+                        <input class="prompt" type="text" placeholder="" id="search_text" value="">
+                        <!--<i class="search icon"id="search"></i>-->
+                    </div>
+                </div>
+            </div>
+            <a class="item" v-on:click="search"><i class="large search icon"></i>ရှာမယ်</a> 
+        </div>
+        <div class="right menu">
+          <a class="item" v-on:click="get_api" id="feeds"><i class="large newspaper icon"></i> ပင်မစာမျက်နှာ</a>
+          <a class="item"id="ask"><i class="large talk icon" id="event1"></i> မေးကြည့်မယ်</a>
+          <a class="item sidebar" id="more"><i class="large content icon"></i></a>
+      </div>
+  </div>
+  <br/><br><br><br><br>
+  <div class="mycontainer">
+    <div class="ui grid">
+        <div class="three wide column">
+            <div class="ui raised segment">
+                <div class="ui horizontal divider">Catagories</div>
+                <div class="ui large bulleted list" v-for="tag in tags">
+                         <a v-on:click="gotag(tag.name)" class="item" >{{tag.name}}</a>
+                </div>
+         </div>
+     </div>
+     <div class="ten wide column">
+        <div class="ui piled segment">
+            <h3 class="ui center aligned header" id="Search_Result">နောက်ဆုံးမေးခွန်းများ</h3><br>
+            <div class="ui two stackable cards" id="post_container">
+                <!-- v for start for post-->
+                <div v-show="show_loading" id='loading_container'>
+                    <center> <img id='loading' src='Images/loading.gif'></center>
+                </div>
+                <div v-show="show_reload" id="loading_container">
+                    <br>
+                    <br>
+                    <br>
+                    <center>
+                        <div class="no_internet">No Internet Connection</div>
+                    </center>
+                    <br>
+                    <center>
+                        <Button v-on:click="get_api" class="ui orange button">Reload </Button>
+                    </center>
+                </div>
+                <div v-show="no_result" id="loading_container">
+                    <br>
+                    <br>
+                    <br>
+                    <center>
+                        <div class="no_internet">No Results</div>
+                    </center>
+                </div>
+
+                <div v-on:click="godetail(post._id)" v-show="show_post" class="ui link card" v-for="post in posts">
+                    <div class="content">
+
+                        <div class="meta">
+                            <span class="right floated time">{{post.date}}</span>
+                            <!--                                <span class="category">{{post.tag.toString()}}</span>-->
+                        </div>
+                        <div class="header" id="post_card">{{post.title}}</div>
+                        <div class="description">
+                            <p>
+                                {{post.content}}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="extra content">
+
+                        <span class="left floated like">
+                          <i class="teal thumbs up icon"></i>
+                          {{post.upvote.length}}
+                          <i class="yellow thumbs down icon"></i>
+                          {{post.downvote.length}}
+                      </span>
+                      <div class="right floated author" id="post_name">
+                        <img class="ui avatar image" v-bind:src="getProfileImage(post.user_id)"> {{post.user_name}}
+                    </div>
+                </div>
+            </div>
+            <!-- test -->
+            <div v-on:click="godetail(result._id)" v-show="show_result" class="ui link card" v-for="result in results">
+                <div class="content">
+                    <div class="header"><p>{{result.title}}</p></div>
+                    <div class="meta">
+                        <span class="right floated time">{{result.date}}</span>
+                        <!--                                <span class="category">{{post.tag.toString()}}</span>-->
+                    </div>
+                    <div class="description">
+                        <p>
+                           {{result.content}}
+                       </p>
+                   </div>
+               </div>
+               <div class="extra content">
+
+                <span class="left floated like">
+                  <i class="teal thumbs up icon"></i>
+                  {{result.upvote.length}}
+                  <i class="yellow thumbs down icon"></i>
+                  {{result.downvote.length}}
+
+              </span>
+              <div class="right floated author">
+                <img class="ui avatar image" v-bind:src="getProfileImage(result.user_id)"> {{result.user_name}}
+            </div>
+        </div>
+    </div>
+    <!-- test -->
+    <!--  v for end-->
+</div>
+</div>    
+</div>
+<div class="ui three wide column">
+    <div class="ui center aligned segment">
+        <div class="ui horizontal divider">Top Users</div>
+        <div v-for="user in users">
+                            <div class="user_box"  v-on:click="profile_for_top(user.user_id)">
+                        <img v-bind:src="getProfileImage(user.user_id)" class="ui tiny circular centered image" >
+                        <h3 class="ui header">{{user.user_name}}</h3>
+                        <div class="meta">{{user.post_reputation}} Reputations</div>
+                        </div>
+        <div class="ui divider"></div></div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="ui container">
+
+    <div class="ui center aligned middle aligned container">
+        <a v-on:click="get_data(pre_url)" id="pre_page"><i class="huge teal angle left icon" ></i></a>
+        <a class="ui mini empty circular label"></a>
+        <a class="ui mini empty circular label"></a>
+        <a class="ui mini empty circular label"></a>
+        <a class="ui mini empty circular label"></a>
+        <a class="ui mini empty circular label"></a>
+        <a v-on:click="get_data(next_url)" id="next_page"><i class="huge teal angle right icon"></i></a>
+    </div>
+</div>
+<br/>
+<br/>
+
+<!--Modal-->
+<div class="ui modal inverted" id="modal2">
+    <div class="ui teal center aligned header">
+        ဒီမှာမေးပါ
+    </div>
+    <div class="content">
+        <div class="ui container">
+            <form class="ui form">
+                <div class="field">
+                    <textarea rows="1" id="title" type="text" name="title" placeholder="Title"></textarea>
+                </div>
+                <select id="tags" name="tags" multiple="" class="ui fluid search multiple dropdown">
+                    <option value=" အိမ်ခြံမြေ">အိမ်ခြံမြေ</option>
+                    <option value="နည်းပညာ">နည်းပညာ</option>
+                    <option value="အားကစား">အားကစား</option>
+                    <option value="ကျန်းမာရေး">ကျန်းမာရေး</option>
+                    <option value="အချစ်ရေး">အချစ်ရေး</option>
+                    <option value="အလှအပ">အလှအပ</option>
+                    <option value="စိုက်ပျိုးရေး">စိုက်ပျိုးရေး</option>
+                    <option value="ဂီတ">ဂီတ</option>
+                    <option value="ခရီးသွား">ခရီးသွား</option>
+                    <option value="travel">travel</option>
+                    <option value="dota2">dota2</option>
+                    <option value="food">food</option>
+                    <option value="celebrities">celebrities</option>
+                    <option value="Banks">Banks</option>
+                    <option value="Health">Health</option>
+                    <option value="Movies">Movies</option>
+                    <option value="GameOfThrones">GameOfThrones</option>
+                    <option value="iPhone">iPhone</option>
+                    <option value="Android">Android</option>
+                    <option value="iOS">iOS</option>
+                    <option value="Books">Books</option>
+                    <option value="Weather">Weather</option>
+                    <option value="ဒေါ်အောင်ဆန်းစုကြည်">ဒေါ်အောင်ဆန်းစုကြည်</option>
+                    <option value="NLD">NLD</option>
+                    <option value="ပညာရေး">ပညာရေး</option>
+                    <option value="အစားအစာ">အစားအစာ</option>
+                    <option value="နိုင်ငံရေး">နိင်ငံရေး</option>
+                    <option value="သမိုင်း">သမိုင်း</option>
+                    <option value="စာပေ">စာပေ</option>
+                    <option value="အိမ်တွင်းမှု">အိမ်တွင်းမှု</option>
+                    <option value="အာမခံ">အာမခံ</option>
+                    <option value="ပထဝီ">ပထဝီ</option>
+                    <option value="ပရဟိတ">ပရဟိတ</option>
+                    <option value="ဆောက်လုပ်ရေး">ဆောက်လုပ်ရေး</option>
+                    <option value="Programming">Programming</option>
+                    <option value="Networking">Networking</option>
+                    <option value="Finance">Finance</option>
+                    <option value="C++">C++</option>
+                    <option value="java">java</option>
+                    <option value="android">android</option>
+                    <option value="Circuit">Circuit</option>
+                    <option value="ဖုန်း">ဖုန်း</option>
+                    <option value="သတင်းထူး">သတင်းထူး</option>
+                    <option value="Games">Games</option>
+                    <option value="Mobile Legend">Mobile Legend</option>
+                    <option value="Web">Web</option>
+                    <option value="Developing">Developing</option>
+                    <option value="Javascript">Javascript</option>
+                </select>
+                <br/>
+                <div class="field">
+                    <textarea id="detail" placeholder="Enter your Question in detail"></textarea>
+                </div>
+                <div class="ui teal fluid button" v-on:click="post_api">
+                    <i class="send icon"></i>မေးမယ်</div>
+                    <br/>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!--success Modal-->
+    <div class="ui small suc modal inverted" id="success_modal">
+        <div class="actions">
+            <br/>
+            <div class="ui center aligned teal header">You upload is successful.</div>
+            <div class="ui teal cancel button">Ok</div>
+            <br/>
+        </div>
+    </div>
+
+    <!--Footer Start-->
+    <div class="ui raised inverted vertical footer segment">
+        <div class="ui container">
+            <div class="ui grid">
+                <div class="four wide column">
+                    <div class="ui inverted segment">
+                        <h4 class="ui inverted header">Help us</h4>
+                        <div class="ui inverted link list">
+                            <a class="item" href="" target="_blank">Report us</a>
+                            <a class="item" href="" target="_blank">Submit an Issue</a>
+                            <a class="item" href="" target="_blank">Join our Chat</a>
+                            <a class="item" href="" target="_blank">Q & A</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide column">
+                    <div class="ui inverted segment">
+                        <h4 class="ui inverted header">Community</h4>
+                        <div class="ui inverted link list">
+                            <a class="item" href="" target="_blank">Contact us</a>
+                            <a class="item" href="" target="_blank">About us</a>
+                            <a class="item" href="" target="_blank">Find us on Facebook</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eight wide column">
+                    <div class="ui inverted center aligned segment">
+                        <div class="ui inverted link list">
+                            <br/>
+                            <a class="item" target="_blank">Special Thanks from YOLO</a>
+                            <a class="item" target="_blank">2017 Copyright. All right received.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Footer End-->
+</div>
+<div class="ui first small coupled modal" id="fmodal">
+    <div class="content">
+        <div class="ui container">
+            <div class="ui centered orange header">
+              Enter your Profile
+          </div>
+          <div class="ui divider"></div>
+          <form class="ui mini form">
+            <div class="teal field">
+                <label>Name</label>
+                <div class="two fields">
+                    <div class="field">
+                        <input name="fname" type="text" placeholder="Full Name"/>
+                    </div>
+                    <div class="field">
+                        <input name="lname" type="text" placeholder="Nickname"/>
+                    </div>
+                </div>
+            </div>
+                            <!--<div class="disabled field">
+                                <label>Username</label>
+                                <input name="username" type="text" placeholder="@phantom" disabled=""/>
+                            </div>-->
+                            <div class="field">
+                                <label>Profile Picture</label>
+                                <label for="file" class="ui icon button"><i class="file icon"></i>Open file</label>
+                                <input type="file" id="file" style="display:none">
+                            </div>
+                            <div class="three fields">
+                                <div class="field">
+                                    <label>Gender</label>
+                                    <div class="ui selection dropdown">
+                                      <input name="gender" type="hidden">
+                                      <i class="dropdown icon"></i>
+                                      <div class="default text">Gender</div>
+                                      <div class="menu">
+                                        <div class="item" data-value="1">Male</div>
+                                        <div class="item" data-value="0">Female</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Date of Birth</label>
+                                <div class="ui calendar" id="example2">
+                                    <div class="ui input left icon">
+                                      <i class="calendar icon"></i>
+                                      <input type="text" placeholder="Date" name="dob">
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="field">
+                            <label>Phone</label>
+                            <input name="phone" type="tel" placeholder="+95" />  
+                        </div>  
+                    </div>  
+                    <div class="two fields">
+                        <div class="field">
+                            <label>Working As</label>
+                            <input type="text" placeholder="Postion" name="work_as">
+                        </div> 
+                        <div class="field">
+                            <label>Working At</label>
+                            <input type="text" placeholder="Company, Organization,..." name="work_at">
+                        </div> 
+                    </div>
+                    <div class="two fields">
+                        <div class="field">
+                            <label>Studing </label>
+                            <input type="text" placeholder="Subjects" name="Subjects">
+                        </div> 
+                        <div class="field">
+                            <label>Studing at</label>
+                            <input type="text" placeholder="University or College" name="work_at">
+                        </div> 
+                    </div>
+                    <div class="two fields">
+                        <div class="field">
+                            <label>Location<i class="marker large Map icon"></i></label>
+                            <input type="text" placeholder="" name="location"/>
+                        </div>
+                        <div class="field">
+                            <label>Division/State</label>
+                            <div class="ui fluid selection dropdown">
+                              <input name="division_state" type="hidden">
+                              <i class="dropdown icon"></i>
+                              <div class="default text">Select Division/State</div>
+                              <div class="menu">
+                                <div class="header">
+                                  <i class="map icon"></i>
+                                  Divisions
+                              </div>
+                              <div class="divider"></div>
+                              <div class="item" data-value="Ayeyarwaddy Division">Ayeyarwaddy</div>
+                              <div class="item" data-value="Bago">Bago</div>
+                              <div class="item" data-value="Magwe">Magwen</div>
+                              <div class="item" data-value="Mandalay">Mandalay</div>
+                              <div class="item" data-value="Sagaing">Sagaing</div>
+                              <div class="item" data-value="Taminthayi">Taminthayi</div>
+                              <div class="item" data-value="Yangon">Yangon</div>
+                              <div class="header">
+                                  <i class="map icon"></i>
+                                  States
+                              </div>
+                              <div class="divider"></div>
+                              <div class="item" data-value="Chin">Chin</div>
+                              <div class="item" data-value="Kachin">Kachin</div>
+                              <div class="item" data-value="Kayah">Kayah</div>
+                              <div class="item" data-value="Kayin">Kayin</div>
+                              <div class="item" data-value="Mon">Mon</div>
+                              <div class="item" data-value="Rakkhine">Rakkhine</div>
+                              <div class="item" data-value="Shan">Shan</div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </form>
+          <div class="actions">
+              <div class="ui primary button" id="to_second">Proceed</div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div class="ui second coupled modal" id="smodal">
+    <div class="header">
+      Follow your interests
+  </div>
+  <div class="content">
+    <div class="ui three column grid">
+        <div class="column">
+            <div class="ui checkbox">
+              <input type="checkbox" name="example"value=" အိမ်ခြံမြေ">
+              <label>အိမ်ခြံမြေ</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example"value="နည်းပညာ">
+              <label>နည်းပညာ</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example"value="အားကစား">
+
+              <label>အားကစား</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="ကျန်းမာရေး">
+
+              <label>ကျန်းမာရေး</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="အချစ်ရေး">
+
+              <label>အချစ်ရေး</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="အလှအပ">
+
+              <label>အလှအပ</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="စိုက်ပျိုးရေး">
+
+              <label>စိုက်ပျိုးရေး</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="ဂီတ">
+
+              <label>ဂီတ</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="ခရီးသွား">
+
+              <label>ခရီးသွား</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="ပညာရေး">
+
+              <label>ပညာရေး</label>
+          </div><br><br>
+          <div class="ui checkbox">
+              <input type="checkbox" name="example" value="အစားအစာ">
+
+              <label>အစားအစာ</label>
+          </div><br><br>
+      </div>
+      <div class="column">
+        <div class="ui checkbox">
+          <input type="checkbox" name="example" value="နိုင်ငံရေး">
+          <label>နိင်ငံရေး</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="သမိုင်း">
+          <label>သမိုင်း</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="စာပေ">
+          <label>စာပေ</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="အိမ်တွင်းမှု">
+          <label>အိမ်တွင်းမှု</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example" value="အာမခံ">
+          <label>အာမခံ</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="ပထဝီ">
+          <label>ပထဝီ</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="ပရဟိတ">
+          <label>ပရဟိတ</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example" value="ဆောက်လုပ်ရေး">
+          <label>ဆောက်လုပ်ရေး</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="Programming">
+          <label>Programming</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example"value="Networking">
+          <label>Networking</label>
+      </div><br><br>
+      <div class="ui checkbox">
+          <input type="checkbox" name="example" value="Finance">
+          <label>Finance</label>
+      </div><br><br>
+  </div>
+  <div class="column">
+    <div class="ui checkbox">
+      <input type="checkbox" name="example"value="C++">
+      <label>C++</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example"value="java">
+      <label>Java</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="android">
+
+      <label>Android</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Circuit">
+
+      <label>Circuit</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="ဖုန်း">
+
+      <label>ဖုန်း</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="သတင်းထူး">
+
+      <label>သတင်းထူး</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Games">
+
+      <label>Games</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Mobile Legend">
+      <label>Mobile Legend</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Web Developing">
+      <label>Web Developing</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Linux">
+      <label>Linux</label>
+  </div><br><br>
+  <div class="ui checkbox">
+      <input type="checkbox" name="example" value="Javascript">
+
+      <label>Javascript</label>
+  </div><br><br>
+</div>
+</div>
+
+
+</div>
+<div class="actions">
+  <div class="ui approve button">
+    <i class="checkmark icon"></i>
+    All Done
+</div>
+</div>
+</div>
+
+
+</div>
+
+    <script >
+        reloadProfile();
+        var base_api_url = "askbox.com:9999";
+        var base_site_url = "askbox.com";
+        var initial=0;
+        Cookies.set("api_url", "askbox.com:9999");
+        Cookies.set("site_url", "askbox.com");
+
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                users:[],
+                posts: [
+                    ],
+                results: [],
+                show_post: false,
+                show_loading: true,
+                show_reload: false,
+                show_result: false,
+                no_result : false,
+                tags:[]
+            },
+            mounted() {
+                this.check();
+                //this.get_api();
+                this.get_top_users();
+                this.get_tag();
+            },
+             methods: {
+                get_top_users:function(){
+                     axios.get('https://' + base_api_url +"/get/top_user")
+                        .then(
+                            response => {
+                                console.log("USERS");
+                                this.users = response.data.data;
+                })
+            },
+            check:function(){
+                console.log($.url().param('tag'));
+                console.log($.url().param('text'));
+                //console.log($.url().param('text') == undefined && $.url().param('tag'));
+                if($.url().param('text') == undefined && $.url().param('tag') == undefined ){
+                    console.log("wtf");
+                    this.get_api();
+                }
+                console.log("PARA!!")
+                if($.url().param('text')!= undefined){
+                    console.log($.url().param('text'));
+                    this.search_data($.url().param('text'));
+                }
+                if($.url().param('tag')!= undefined){       
+                    console.log($.url().param('tag'));
+                    this.search_tag($.url().param('tag'));
+                }
+                    
+            },
+            gotag:function(name){
+                this.show_post=false;
+                this.show_result = false;
+                this.show_loading=true;
+                this.show_reload = false;
+                this.no_result = false;
+                setTimeout(this.search_tag(name),0);
+                console.log(text);
+            },
+            search_tag:function(name){
+                history.pushState(null, null, "/index.html?tag="+name);
+                console.log("SEARCH_TAG");
+                if (navigator.onLine) {
+                    axios.get('https://' + base_api_url + '/get/post/tag/'+name)
+                        .then(
+                            response => {
+                                this.results = response.data.data;
+                                if (this.results == ""){                             
+                                        this.show_post=false;
+                                        this.show_loading=false;
+                                        this.show_result = false;
+                                        this.show_reload = false;
+                                        this.no_result = true;
+                                    }
+                                else{
+                                        
+                                    this.show_post=false;
+                                    this.show_loading=false 
+                                    this.show_result = true;
+                                    this.show_reload = false;
+                                    this.no_result = false;
+                                    console.log("not");
+                                    }
+                                        console.log("true");
+                                        $("#Search_Result").text("Results of "+name);
+                                        $("#search_text").val("");
+                    
+                                    }).catch(e => {
+
+                            })
+                    } else {
+                        
+                        this.show_reload = true;
+                        this.show_result = false;
+                        this.show_post = false;
+                        this.show_loading = false;
+                        this.show_result = false;
+                        this.no_result = false;
+                    }
+            },
+            get_tag:function(){
+                    axios.get('https://' + base_api_url +"/get/tags")
+                        .then(
+                            response => {
+                                var gg = [
+                                    {
+                                        name:"ggwp"
+                                    },
+                                    {
+                                        name:"zzz"
+                                    }
+                                ];
+                                this.tags = response.data.data[0];
+                               
+                        })
+            },
+            getProfileImage: function (id) {
+                    return "http://graph.facebook.com/"+id+"/picture?type=large";
+            },
+            godetail: function (id) {
+               console.log(id.__ob__.value.$oid)
+               window.location.replace("https://" + base_site_url + "/question.html?id=" + id.__ob__.value.$oid);
+            },
+            get_data: function (initial) {
+                    if (navigator.onLine) {
+                        axios.get('https://' + base_api_url + '/post/get?offset='+initial)
+                            .then(
+                                response => {
+                                    this.pre_url = response.data.pre_url;
+                                    this.next_url = response.data.next_url;
+                                    this.posts = response.data.data;
+                                    this.show_loading = false;
+                                    this.show_post = true;
+                                    this.show_reload = false;
+                                    this.show_result = false;
+                                    this.no_result = false;
+                                    $("#Search_Result").text("နောက်ဆုံးမေးခွန်းများ");
+                                    console.log(this.pre_url);
+                                    console.log(this.next_url);
+                                    console.log("first");
+                                    
+                                    if (this.pre_url == 'none'){
+                                        $('#pre_page').html('<i class="huge grey angle left icon"></i>');
+                                    }
+                                    else{
+                                        $('#pre_page').html('<i class="huge teal angle left icon"></i>');
+                                    }
+                                        
+                                    if (this.next_url == 'none'){
+                                        $('#next_page').html('<i class="huge grey angle right icon"></i>');
+                                    }
+                                    else{
+                                        $('#next_page').html('<i class="huge teal angle right icon"></i>');
+                                    }
+
+                                }).catch(e => {
+
+                })
+                } else {
+
+                        this.show_reload = true;
+                        this.show_post = false;
+                        this.show_loading = false;
+                        this.show_result = false;
+                        this.no_result = false;
+                }
+            },
+            search: function(){
+                var stext = $("#search_text").val();
+                this.show_post=false;
+                this.show_result = false;
+                this.show_loading=true;
+                this.show_reload = false;
+                this.no_result = false;
+                if(stext=="")
+                    {
+                    setTimeout(this.get_data(initial), 0);
+                    }
+                else{
+                    setTimeout(this.search_data(stext),0);
+                }
+                    
+                console.log(text);
+                    
+            },
+            search_data: function(stext){
+                                            history.pushState(null, null, "/index.html?text="+stext);
+                    console.log("SEARCH_TEXT");
+                    if (navigator.onLine) {
+                        axios.get('https://' + base_api_url + '/post/search?key='+stext)
+                            .then(
+                                response => {
+                                        console.log(stext);
+                                        this.results = response.data.data;
+                                        if (this.results == ""){
+                                            
+                                            this.show_post=false;
+                                            this.show_loading=false;
+                                            this.show_result = false;
+                                            this.show_reload = false;
+                                            this.no_result = true;
+                                            console.log("work");
+                                            
+                                        }
+                                    else{
+                                        
+                                            this.show_post=false;
+                                            this.show_loading=false;
+                                            this.show_result = true;
+                                            this.show_reload = false;
+                                            this.no_result = false;
+                                            console.log("not");
+                                        
+                                    }
+                                        console.log("true");
+                                        $("#Search_Result").text("Results of "+stext);
+                                        $("#search_text").val("");
+                    
+                                    }).catch(e => {
+
+                            })
+                    } else {
+                        
+                        this.show_reload = true;
+                        this.show_result = false;
+                        this.show_post = false;
+                        this.show_loading = false;
+                        this.show_result = false;
+                        this.no_result = false;
+                    }
+                },
+                get_api: function () {
+                    history.pushState(null, null, "/index.html");
+                    console.log("get api");
+                    this.show_post = false;
+                    this.show_result = false;
+                    this.show_loading = true;
+                    this.show_reload = false;
+                    this.no_result = false;
+                    setTimeout(this.get_data(initial), 0);
+
+                },
+                profile: function(){
+                    if(checkAuth()){
+                    var id = Cookies.get("id");
+                    window.location.replace("https://" + base_site_url + "/professional_profile.html?id=" + id);
+                    }
+                    
+                },
+                profile_for_top:function(id){
+                                        window.location.replace("https://" + base_site_url + "/professional_profile.html?id=" + id);
+                },
+                post_api: function () {
+                    if (checkAuth()) {
+                        var d = moment(new Date()).format("YYYY/MM/DD");
+                        console.log("Date::" + d);
+                        let data = new FormData();
+                        data.append("user_id", Cookies.get("id"));
+                        data.append("user_name", Cookies.get("name"));
+                        data.append("tag", $("#tags").val());
+                        data.append("content", $("#detail").val());
+                        data.append("title", $("#title").val());
+                        data.append("date", d);
+                        axios({
+                            method: 'post',
+                            url: 'https://' + Cookies.get("api_url") + '/post/post',
+                            data: data
+                        }).then(function (response) {
+                            console.log(response);
+                            $('#title').val('');
+                            $('.ui.dropdown').dropdown('clear');
+                            $('#detail').val('');
+                            
+                            
+                        });
+                        //close post form open success from start
+
+                        $('.ui.modal')
+                            .modal('hide');
+                        $('.ui.suc.modal')
+                            .modal('show');
+                        //end
+                    } else {
+
+                    }
+                    setTimeout(this.get_data(initial), 1000);
+                    this.get_data(initial);
+                },
+                post_answer: function () {
+                    axios({
+                        method: 'post',
+                        url: 'https://' + Cookies.get("api_url") + '/answer/post',
+                        data: ""
+                    }).then(function (response) {
+                        console.log(response);
+                    });
+                }
+            }
+        });
+
+    </script>
+    
+    
+    <!-- semantic js  start -->
+    <script>
+        $('.ui.fluid.dropdown').dropdown();
+    </script>
+    <script>
+        $('.ui.sidebar')
+            .sidebar('attach events', '.ui.menu .item.sidebar');
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.ui.card .image').dimmer({
+                on: 'hover'
+            });
+        });
+        $('.ui.rating').rating({
+            maxRating: 5
+        });
+    </script>
+    
+    <script>
+        $('#successmodal')
+            .modal('show');
+    </script>
+    <!-- semantic js end -->
+
+</body>
+
+</html>

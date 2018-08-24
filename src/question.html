@@ -1,0 +1,807 @@
+<html>
+
+<head>
+    <!-- files start -->
+    <script src="vue/dist/vue.js"></script>
+    <script src="axios/dist/axios.min.js"></script>
+    <script src="cookie-master/src/js.cookie.js"></script>
+    <script type="text/javascript" src="Semantic-UI-CSS-master/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="Semantic-UI-CSS-master/semantic.css">
+    <script type="text/javascript" src="Semantic-UI-CSS-master/semantic.min.js"></script>
+    <script type="text/javascript" src="moment.js"></script>
+    <script type="text/javascript" src="auth.js"></script>
+    <script type="text/javascript" src="purl-master/purl.js"></script>
+    <script type="text/javascript" src="custombutton.js"></script>
+    <link rel="stylesheet" href="tag.css"/>
+
+    <!-- files stop -->
+    <style>
+        #ans-user{
+            cursor: pointer;
+        }
+        /*        button start*/
+        .go_profile{
+            cursor: pointer;
+        }
+        
+        .relate_post{
+            margin-top: 18px!important;
+            cursor: pointer;
+        }
+        #date-txt {
+            opacity: 0.7;
+            font-size: 0.8em;
+        }
+        
+        .upvotebtn_inactive {
+            color: #044F67;
+        }
+        
+        .upvotebtn_active {
+            color: white;
+            background-color: #044F67;
+        }
+        
+        .downvotebtn_active {
+            color: white;
+            background-color: firebrick;
+        }
+        
+        .downvotebtn_inactive {
+            color: firebrick;
+        }
+        
+        .upvotebtn,
+        .downvotebtn {
+            font-size: 0.9em;
+            display: inline-block;
+            cursor: pointer;
+            padding-top: 9px;
+            width: 100px;
+            height: 42px;
+            border-radius: 5px;
+            box-shadow: 0 4px 9px 0 rgba(0, 0, 0, 0.4);
+            transition-property: all;
+            transition-duration: 0.2s;
+            user-select: none;
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -o-user-select: none;
+        }
+        
+        .upvotebtn:active,
+        .downvotebtn:active {
+            transform: scale(1.1, 1.1);
+        }
+        /*        button end*/
+        
+        #question_title,.meta,#uploader,#top_user_name,#upvote{
+            color: #044F67;
+        }
+        #tag,#request,#answer_button{
+            background-color: #044F67;
+        }
+        #more,#ask,#feeds {
+            padding-left: 25px;
+            padding-right: 25px;
+        }
+        #proj_logo_box{
+            margin-left: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding-bottom: 0px;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 12px;
+            background-color: white;
+        }
+        #proj_logo{
+            width: 100px;
+        }
+        .div_logo{
+            background-color: white;
+        }
+        .ggsearch {
+            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-left: 30px;
+        }
+        .ui.horizontal.divider{
+            padding: 4 4 4 4px;
+        }
+         .ui.raised.menu{
+                 background-color: #044F67;
+                 box-shadow: 0 4px 18px 0 rgba(0,0,0,0.1);  
+                padding: 7 7 7 7px;
+        }
+        .ui.raised.footer,.ui.inverted.segment{
+            background-color: #044F67;
+        }
+        .ui.t {
+            background-color: aqua;
+        }
+        
+        .item {
+            padding: 50px;
+        }
+        
+        .ggnavbar.left {
+            margin-left: 120px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .ggnavbar.right {
+            margin-right: 100px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        #cancel {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+        
+        #cancel1 {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+        
+        .gg3 {
+            margin-bottom: 10px;
+            margin-left: 15px;
+            margin-right: 15px;
+            margin-top: 25px;
+        }
+        
+        .gg4 {
+            margin-left: 5px;
+        }
+        
+        .ui.sidebar ~ .fixed,
+        .ui.sidebar ~ .pusher {
+            width: 100%;
+        }
+        
+        .ui.visible.left.sidebar ~ .fixed,
+        .ui.visible.left.sidebar ~ .pusher {
+            width: calc(100% - 260px);
+        }
+        
+        .pushable > .pusher {
+            transition: transform 500ms ease, width 800ms ease;
+        }
+    </style>
+    <style>
+        .gg {
+            margin-left: 40px;
+            margin-right: 0px;
+            font-size: 1.25em;
+        }
+        
+        .gg2 {
+            margin-left: 20px;
+            margin-right: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <!-- please log in modal start-->
+    <div class="ui small modal inverted" id="modal11">
+        <div class="actions">
+            <br/>
+            <div class="ui center aligned primary header">မေးချင်ရင် Login အရင်ဝင်</div>
+            <br/>
+            <div onclick="hidesidebar()" class="ui blue button">ဝင်မယ်</div>
+            <script>
+                function hidesidebar() {
+                    $('.ui.sidebar').sidebar('show');
+                    $('#modal1').modal('hide');
+                }
+            </script>
+            <div class="ui blue cancel button">မဝင်ဘူး</div>
+            <br/>
+        </div>
+    </div>
+    <script>
+        $('.ui.modal')
+            .modal({
+                blurring: true,
+            })
+            .modal('');
+        $(document).on("click", "#ask", function () {
+            if (checkAuth()) {
+                $("#modal22").modal("setting", {
+                    closable: true,
+                    onApprove: function () {
+                        return false;
+                    }
+                }).modal("show");
+            } else {
+                $("#modal1").modal("setting", {
+                    closable: true,
+                    onApprove: function () {
+                        return false;
+                    }
+                }).modal("show");
+            }
+
+        })
+    </script>
+
+
+    <div class="ui right wide sidebar vertical menu">
+        <a class="center aligned item">
+            <h3 class="ui center aligned icon header">
+<div class="item" id="profile">
+<img class="ui tiny centered circular image" id="user_profile" src="Images/avatar/large/daniel.jpg"/><br/>
+<div class="content">
+
+<h3 class="ui header" id="username">Login</h3>
+    </div>
+    </div>
+    </h3>
+    <div class="ui centered grid container">
+
+        <div class="row" id="login_container">
+            <div onlogin="checkLoginState();" scope="public_profile,email" class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false"></div>
+        </div>
+
+        Or
+        <div class="row" onclick="google()">
+            <button class="ui large google plus button">
+                <i class="google plus icon"></i> Login with Google Plus
+            </button>
+        </div>
+        <script>
+            function google(){
+                alert("This Feature is not availiable yet")
+            }
+        </script>
+    </div>
+
+
+    </a>
+    </div>
+    <div class="pusher">
+
+        <div class="pusher">
+        <div class="ui fixed raised inverted menu borderless" style="border-radius: 0!important; border: 0; -webkit-transition-duration: 7.9s;">
+                  <div class="left menu">
+                      <div id="proj_logo_box">
+                      <img id="proj_logo" src="Images/PicsArt_08-03-07.51.32.png">
+                          </div>
+                    <div class="ggsearch">
+                        <div class="ui search">
+                          <div class="ui icon input">
+                            <input  class="prompt" type="text" placeholder="" id="search_text" value="">
+                            <!--<i class="search icon"id="search"></i>-->
+                          </div>
+                        </div>
+                    </div >
+                            <a class="item" onclick="search_text()"><i class="large search icon"></i>ရှာမယ်</a> 
+                  </div>
+            <div class="right menu">
+                <script>
+                    
+                    function search_text(){
+                        window.location.replace("https://askbox.com?text="+$("#search_text").val());
+                    }
+                    function fuck() {
+                        window.location.href = "/";
+                    }
+                </script>
+                <a class="item" onclick="fuck()" id="feeds"><i class="large newspaper icon"></i> ပင်မစာမျက်နှာ</a>
+                <a class="item" id="ask" onclick="alertgg()"><i class="large talk icon" id="event1"></i> မေးကြည့်မယ်</a><script>function alertgg(){alert("This feature is not avilable yet");}</script>
+                <a class="item sidebar" id="more"><i class="large content icon"></i> အခြား</a>
+            </div>
+        </div>
+        <br/><br><br><br><br>
+
+        <!--start of question and answers-->
+        <div id="app">
+            <div class="ui grid">
+                <div class="ui thirteen wide column">
+                    <div class="gg">
+                        <div class="ui horizontal divider">
+                            <h2 class="ui header">အမေး</h2>
+                        </div>
+                        <div>
+                            <div class="ui raised segment" v-for="post in posts">
+                                <div class="ui items">
+                                    <div class="item">
+                                        <div class="content">
+                                            <h2 class="header" id="question_title">{{post.title}}</h2>
+                                            <span id="date-txt" class="right floated time">{{post.date}} 
+                                                <img  v-show="is_owner" v-on:click="delete_post" class="ui avatar image" id="cancel" src="Images/cancel%20(1).png">
+                                            </span>
+                                            <div class="ui divider"></div>
+                                            <div v-on:click="goprofile(post.user_id)" class="go_profile right floated author">
+                                                <img class="ui avatar image" v-bind:src="getProfileImage(post.user_id)">{{post.user_name}}
+                                            </div>
+
+                                            <!--<a class="ui tag label" v-for="tag in post.tag">{{tag["name"]}}</a>-->
+                                            <ul class="tags-gg" >
+                                              <li v-for="tag in post.tag"><a v-on:click="search_tag(tag['name'])" href="#" class="tag-gg" >{{tag["name"]}}</a></li>
+                                            </ul>
+                                            
+                                            <div class="description"><br>
+                                                <p>
+                                                    {{post.content}}
+                                                </p><br>
+                                                <div class="ui divider"></div>
+                                            </div>
+                                            <div class="extra">
+                                                <span class="left floated like">
+                                    <div class="ui tiny statistic">
+                                      <div class="value" id="upvote">
+                                        {{upvote_data}}
+                                      </div>
+                                 
+        <center>Upvote</center>
+
+                                    </div>
+                                    <div class="ui tiny red statistic">
+                                      <div class="value">
+                                        {{downvote_data}}
+                                      </div>
+
+        <center>Downvote</center>
+
+                                    </div>
+                                </span>
+                                                <div class="right floated author">
+                                                    <div class="upvotebtn_inactive upvotebtn" v-on:click="toggleUp">
+                                                        <center><b>သင့်လျော်သည်</b></center>
+                                                    </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <div class="downvotebtn_inactive downvotebtn" v-on:click="toggleDown">
+                                                        <center><b>မသင့်လျော်ပါ</b></center>
+                                                    </div>
+
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <br/>
+                            <!--Start answers-->
+                            <div class="ui grid">
+                                <div class="ui eleven wide column">
+                                    <div class="ui horizontal divider">
+                                        <h3 class="ui centered header">အဖြေများ</h3>
+                                    </div>
+
+                                    <div class="ui raised segment" v-for="answer in answers">
+                                        <div class="ui items">
+                                            <div class="item">
+                                                <div class="content">
+
+                                                    <div v-on:click="goprofile(answer.user_id)" id="ans-user"><img class="ui avatar image" v-bind:src="getProfileImage(answer.user_id)"> {{answer.user_name}} answered this.</div>
+
+                                                    <span id="date-txt" class="right floated author">{{answer.date}} 
+<!--                                                        <img class="ui avatar image" id="cancel1" src="Images/cancel%20(1).png">-->
+                                                    </span>
+                                                    <div class="ui divider"></div>
+                                                    <div class="description">
+                                                        <p>
+                                                            {{answer.answer}}
+                                                        </p>
+                                                        <br>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br/><br>
+                                    
+                                <div class="ui horizontal divider">
+                                        <h3 class="ui centered header">သင့်အဖြေ</h3>
+                                    </div>
+                                <form class="ui reply form">
+                                    <div class="field">
+                                        <textarea id="answer"></textarea>
+                                    </div>
+                                    <div class="ui three column grid">
+                                        <div class="column"></div>
+                                        <div class="column">
+                                            <div v-on:click="post_answer" class="ui fluid large grey icon button"s>
+                                                <i class="icon edit"></i> ဖြေ
+                                            </div>
+                                        </div>
+                                        <div class="column"></div>
+                                    </div>
+                                </form>
+                            
+                                </div>
+                                <div class="ui five wide column ">
+                                    <h3 class="ui centered header">အခြားဆက်စပ်သော မေးခွန်းများ</h3>
+                                    <div v-for="post in relate_posts">
+                                    <div v-on:click="godetail(post._id)" class="relate_post ui blue floating message" >
+                                        <a>{{post.title}}</a>
+                                    </div>
+</div>
+
+                                </div>
+                            </div>
+
+                            <br/>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="ui three wide column">
+                    <div class="ui center aligned segment">
+                        <div class="ui horizontal divider">Top Users</div>
+                        <div v-for="user in users">
+                            <div class="user_box"  v-on:click="profile_for_top(user.user_id)">
+                        <img v-bind:src="getProfileImage(user.user_id)" class="ui tiny circular centered image" >
+                        <h3 class="ui header">{{user.user_name}}</h3>
+                        <div class="meta">{{user.post_reputation}} Reputations</div>
+                        </div>
+                        <div class="ui divider"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end-->
+
+    <!--<div class="ui padded grid">
+                </div>-->
+    <!--Footer Start-->
+    <div class="ui raised inverted vertical footer segment">
+        <div class="ui container">
+            <div class="ui grid">
+                <div class="four wide column">
+                    <div class="ui inverted segment">
+                        <h4 class="ui inverted header">Help us</h4>
+                        <div class="ui inverted link list">
+                            <a class="item" href="" target="_blank">Report us</a>
+                            <a class="item" href="" target="_blank">Submit an Issue</a>
+                            <a class="item" href="" target="_blank">Join our Chat</a>
+                            <a class="item" href="" target="_blank">Q & A</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide column">
+                    <div class="ui inverted segment">
+                        <h4 class="ui inverted header">Community</h4>
+                        <div class="ui inverted link list">
+                            <a class="item" href="" target="_blank">Contact us</a>
+                            <a class="item" href="" target="_blank">About us</a>
+                            <a class="item" href="" target="_blank">Find us on Facebook</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eight wide column">
+                    <div class="ui inverted center aligned segment">
+                        <div class="ui inverted link list">
+                            <br/>
+                            <a class="item" target="_blank">Special Thanks from YOLO</a>
+                            <a class="item" target="_blank">2017 Copyright. All right received.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Footer End-->
+
+    <!--Modal-->
+    <div class="ui modal inverted" id="modal101">
+        <div class="ui teal center aligned header">
+            Ask here
+        </div>
+        <div class="content">
+            <div class="ui container">
+                <form class="ui form">
+                    <div class="field">
+                        <input type="text" name="email" placeholder="Question's Title">
+                    </div>
+                    <select name="skills" multiple="" class="ui fluid search multiple dropdown">
+                        <option value="">Tags</option>
+                        <option value="Role1">Gyn and Fitness</option>
+                        <option value="Role2">Technology</option>
+                        <option value="Role3">Health</option>
+                        <option value="Role3">Beauty</option>
+                        <option value="Role3">Sport</option>
+                    </select>
+                    <br/>
+                    <div class="field">
+                        <textarea maxlength="3" placeholder="Enter your Question in detail"></textarea>
+                    </div>
+                    <div class="ui teal fluid button">
+                        <i class="send icon"></i>Request</div>
+                    <br/>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        reloadProfile();
+        $('.ui.fluid.dropdown').dropdown();
+    </script>
+    <script>
+        $('.ui.sidebar')
+            .sidebar('attach events', '.ui.menu .item.sidebar');
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.ui.card .image').dimmer({
+                on: 'hover'
+            });
+        });
+        $('.ui.rating').rating({
+            maxRating: 5
+        });
+    </script>
+    <script>
+        // add event handler, triggers '/follow/22'
+        $('#xxx')
+            .state({
+                text: {
+                    inactive: '<i class="teal thumbs up icon"></i>UpVote',
+                    active: '<i class="teal thumbs up icon"></i>UpVoted',
+                    deactivate: '<i class="teal thumbs outline up icon"></i>Un-Vote'
+                }
+            });
+    </script>
+    <script>
+        $('.ui.downvote.button')
+            .state({
+                text: {
+                    inactive: '<i class="red thumbs down icon"></i>Downvote',
+                    active: '<i class="red thumbs down icon"></i>DownVoted',
+                    deactivate: '<i class="red thumbs outline down icon"></i>Un-Vote'
+                }
+            });
+    </script>
+
+    <script>
+        <!--Hoverable cards-->
+        $('.special.cards .image').dimmer({
+            on: 'hover'
+        });
+    </script>
+    <script>
+        $('.ui.modal')
+            .modal({
+                blurring: true,
+            })
+            .modal('');
+        $(document).on("click", "#ask", function () {
+            $("#modal1").modal("setting", {
+                closable: true,
+                onApprove: function () {
+                    return false;
+                }
+            }).modal("show");
+        })
+    </script>
+    <script>
+        $(".dimmer").css("background-color", "rgba()");
+    </script>
+
+    <script>
+        $('.ui.dropdown')
+            .dropdown({
+                allowAdditions: true
+            });
+    </script>
+    
+    <script>
+        $("#profile").click(function(){
+                if(checkAuth()){
+                var id=Cookies.get("id");
+                var url=Cookies.get("site_url");
+                window.location.replace("https://" +url + "/professional_profile.html?id=" + id);
+                }
+        });
+    </script>
+    <!--
+        <script>
+            $('.toggle')
+                .state({
+                  text: {
+                    inactive : 'Vote',
+                    active   : 'Voted'
+                  }
+                })
+              ;
+        </script>
+        -->
+
+    <!-- vue js  start -->
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                users:[],
+                answers: [],
+                posts: [],
+                tags: [],
+                upvote_data: 10,
+                downvote_data: 22,
+                upvote_active: false,
+                downvote_active: false,
+                is_owner: false,
+                relate_posts: []
+            },
+            mounted() {
+                this.get_top_users();
+                this.get_data();
+                console.log("POSTS");
+                console.log(this.posts);
+                console.log("-------");
+                
+
+            },
+            methods: {
+                get_top_users:function(){
+                     axios.get("https://askbox.com:9999/get/top_user")
+                        .then(
+                            response => {
+                                console.log("USERS");
+                                console.log(response.data.data);
+                                    this.users = response.data.data;
+                            })
+                },
+                search_tag:function(tag){
+                    document.location.href = "https://askbox.com?tag="+tag;
+                },
+                
+                goprofile:function(id){
+                  window.location.href="https://"+Cookies.get("site_url")+"/professional_profile.html?id="+id;  
+                },
+                godetail: function (gg) {
+                    window.location.replace("https://" + Cookies.get("site_url") + "/question.html?id=" + gg.$oid);
+                },
+               
+                delete_post: function () {
+                    axios({
+                        method: 'get',
+                        url: 'https://' + Cookies.get("api_url") + '/post/delete/' + $.url().param('id')
+                    }).then(function (response) {
+
+                    });
+                    window.location.href = "/"
+                },
+                getProfileImage: function (id) {
+                    return "http://graph.facebook.com/"+id+"/picture?type=large";
+                },
+                vote: function (vote) {
+                    let data = new FormData();
+                    console.log(Cookies.get("id"));
+                    console.log(Cookies.get("name"));
+                    data.append("user_id", Cookies.get("id"));
+                    data.append("user_name", Cookies.get("name"));
+                    data.append("post_id", $.url().param('id'));
+                    data.append("vote", vote);
+                    console.log('https://' + Cookies.get("api_url") + '/post/upvote');
+                    axios({
+                        method: 'post',
+                        url: 'https://' + Cookies.get("api_url") + '/post/upvote',
+                        data: data
+                    }).then(function (response) {
+                        console.log("voted");
+                        console.log(response);
+                    });
+                },
+                toggleUp: function () {
+
+                    if (this.upvote_active == false && this.downvote_active == false) {
+                        this.upvote_active = true
+                        this.upvote_data = this.upvote_data + 1
+
+                    } else if (this.upvote_active == false && this.downvote_active == true) {
+                        this.downvote_active = false
+                        this.downvote_data = this.downvote_data - 1
+                        toggleDownStyle()
+
+                        this.upvote_active = true
+                        this.upvote_data = this.upvote_data + 1
+
+                    } else if (this.upvote_active == true && this.downvote_active == false) {
+                        this.upvote_active = false
+                        this.upvote_data = this.upvote_data - 1
+
+                    }
+
+                    this.vote(1)
+                    toggleUpStyle();
+
+                },
+                toggleDown: function () {
+
+                    if (this.downvote_active == false && this.upvote_active == false) {
+                        this.downvote_active = true
+                        this.downvote_data = this.downvote_data + 1
+
+                    } else if (this.upvote_active == false && this.downvote_active == true) {
+                        this.downvote_active = false
+                        this.downvote_data = this.downvote_data - 1
+
+                    } else if (this.upvote_active == true && this.downvote_active == false) {
+                        this.upvote_active = false
+                        this.upvote_data = this.upvote_data - 1
+                        toggleUpStyle()
+
+                        this.downvote_active = true
+                        this.downvote_data = this.downvote_data + 1
+
+                    }
+                    this.vote(0)
+                    toggleDownStyle();
+                },
+                get_data: function () {
+                    var id = $.url().param('id')
+                    axios.get("https://" + Cookies.get("api_url") + "/post/get/" + id)
+                        .then(
+                            response => {
+                                if (Cookies.get("id") == response.data.data[0].user_id) {
+                                    this.is_owner = true;
+                                }
+                                this.posts = response.data.data;
+                                console.log(response.data.data);
+                                this.upvote_data = response.data.data[0].upvote.length;
+                                this.downvote_data = response.data.data[0].downvote.length;
+                                this.get_relate_post();
+                            })
+                    axios.get("https://" + Cookies.get("api_url") + "/answer/get/" + id)
+                        .then(
+                            response => {
+                                this.answers = response.data.data;
+                            })
+
+                    //request end 
+                },
+                 get_relate_post:function(){
+                    //get fuck tag
+                                console.log(this.posts);
+                    axios.get("https://askbox.com:9999/get/post/tag/"+this.posts[0].tag[0].name)
+                        .then(
+                            response => {
+                                this.relate_posts = response.data.data;
+                            })
+                },
+                post_answer: function () {
+
+                    let data = new FormData();
+                    data.append("user_name", Cookies.get('name'));
+                    data.append("post_id", $.url().param('id'));
+                    data.append("user_id", Cookies.get('id'));
+                    data.append("answer", $("#answer").val());
+                    var d = moment(new Date()).format("YYYY/MM/DD");
+                    data.append("date", d);
+
+                    axios({
+                        method: 'post',
+                        url: 'https://' + Cookies.get("api_url") + '/answer/post',
+                        data: data
+                    }).then(function (response) {
+                        console.log("wtf");
+                        $('#answer').val('');
+                        console.log(response);
+                    });
+                    setTimeout(this.get_data, 0);
+                    this.get_data;
+                }
+            }
+        });
+    </script>
+    <!-- vue js end -->
+
+</body>
+
+</html>
